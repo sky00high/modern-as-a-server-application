@@ -1,0 +1,13 @@
+branch-defaults:
+  master:
+    environment: node-express-env
+    group_suffix: null
+global:
+  application_name: modern-as-a-server-application
+  branch: null
+  default_ec2_keyname: null
+  default_platform: node.js
+  default_region: us-east-1
+  profile: eb-cli
+  repository: null
+  sc: git
