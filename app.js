@@ -32,7 +32,7 @@ app.use('/users', users);
 
 
 //dyn= new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000') });
-//dyn = new AWS.DynamoDB();
+dyn = new AWS.DynamoDB();
 /*
  var params = {
   AttributeDefinitions: [
@@ -73,10 +73,10 @@ app.use('/users', users);
  */
 
 
-   //  dyn.listTables(function (err, data)
-   //   {
-   //      console.log('listTables',err,data);
-   //   });
+dyn.listTables(function (err, data)
+{
+  console.log('listTables',err,data);
+});
 
 
 
