@@ -33,7 +33,7 @@ app.use('/users', users);
 
 //dyn= new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000') });
 dyn = new AWS.DynamoDB();
-/*
+
  var params = {
   AttributeDefinitions: [
      {
@@ -70,7 +70,7 @@ dyn = new AWS.DynamoDB();
    }                // successful response
 
  });
- */
+ 
 
 
 dyn.listTables(function (err, data)
