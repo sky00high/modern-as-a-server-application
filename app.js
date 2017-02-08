@@ -7,8 +7,10 @@ var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var index = require('./routes/index');
 var users = require('./routes/users');
-
+var AWS= require('aws-sdk');
+AWS.config.region = 'us-east-1';
 var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +26,71 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use('/', index);
 app.use('/users', users);
+
+
+
+
+
+dyn= new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000') });
+//dyn = new AWS.DynamoDB();
+/*
+ var params = {
+  AttributeDefinitions: [
+     {
+    AttributeName: "Artist", 
+    AttributeType: "S"
+   }, 
+     {
+    AttributeName: "SongTitle", 
+    AttributeType: "S"
+   }
+  ], 
+  KeySchema: [
+     {
+    AttributeName: "Artist", 
+    KeyType: "HASH"
+   }, 
+     {
+    AttributeName: "SongTitle", 
+    KeyType: "RANGE"
+   }
+  ], 
+  ProvisionedThroughput: {
+   ReadCapacityUnits: 5, 
+   WriteCapacityUnits: 5
+  }, 
+  TableName: "Music3"
+ };
+  dyn.createTable(params, function(err, data) {
+   if (err) console.log(err, err.stack); // an error occurred
+   else{
+     console.log(data);
+
+
+   }                // successful response
+
+ });
+ */
+
+
+     dyn.listTables(function (err, data)
+      {
+         console.log('listTables',err,data);
+      });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var router = express.Router();
 router.get('/', function(req,res){
