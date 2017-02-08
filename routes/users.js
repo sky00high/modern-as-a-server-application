@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var AWS = require('aws-sdk');
+console.log(process);
 AWS.config.region = process.env.REGION;
 var userTable = process.env.userTable;
 var ddb = new AWS.DynamoDB();
