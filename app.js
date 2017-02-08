@@ -7,8 +7,8 @@ var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var index = require('./routes/index');
 var users = require('./routes/users');
-var AWS= require('aws-sdk');
-AWS.config.region = 'us-east-1';
+//var AWS= require('aws-sdk');
+//AWS.config.region = 'us-east-1';
 var app = express();
 
 
@@ -32,7 +32,7 @@ app.use('/users', users);
 
 
 //dyn= new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000') });
-dyn = new AWS.DynamoDB();
+//dyn = new AWS.DynamoDB();
 /*
  var params = {
   AttributeDefinitions: [
@@ -73,10 +73,10 @@ dyn = new AWS.DynamoDB();
  */
 
 
-     dyn.listTables(function (err, data)
-      {
-         console.log('listTables',err,data);
-      });
+   //  dyn.listTables(function (err, data)
+   //   {
+   //      console.log('listTables',err,data);
+   //   });
 
 
 
