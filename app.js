@@ -7,8 +7,8 @@ var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var index = require('./routes/index');
 var users = require('./routes/users');
-//var AWS= require('aws-sdk');
-//AWS.config.region = 'us-east-1';
+var AWS= require('aws-sdk');
+AWS.config.region = 'us-east-1';
 var app = express();
 
 
