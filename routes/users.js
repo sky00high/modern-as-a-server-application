@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
 		if(err) console.log(err);
 		else console.log(data);
 	})
-  res.send('respond with a resource');
+  res.json(process.env);
 });
 
 module.exports = router;
