@@ -6,9 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var index = require('./routes/index');
-var users = require('./routes/users');
-var AWS= require('aws-sdk');
-AWS.config.region = 'us-east-1';
+
 var app = express();
 
 
@@ -25,94 +23,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use('/', index);
+var users = require('./routes/users');
 app.use('/users', users);
 
-
-
-
-
-//dyn= new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000') });
-dyn = new AWS.DynamoDB();
-
- var params = {
-  AttributeDefinitions: [
-     {
-    AttributeName: "Artist", 
-    AttributeType: "S"
-   }, 
-     {
-    AttributeName: "SongTitle", 
-    AttributeType: "S"
-   }
-  ], 
-  KeySchema: [
-     {
-    AttributeName: "Artist", 
-    KeyType: "HASH"
-   }, 
-     {
-    AttributeName: "SongTitle", 
-    KeyType: "RANGE"
-   }
-  ], 
-  ProvisionedThroughput: {
-   ReadCapacityUnits: 5, 
-   WriteCapacityUnits: 5
-  }, 
-  TableName: "Music3"
- };
-  dyn.createTable(params, function(err, data) {
-   if (err) console.log(err, err.stack); // an error occurred
-   else{
-     console.log(data);
-
-
-   }                // successful response
-
- });
- 
-
-
-dyn.listTables(function (err, data)
-{
-  console.log('listTables',err,data);
-});
-
-
-
-
-
-
-
-
-console.log("place hooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooohooooooo");
-
-
+var login = require('./routes/login');
+app.use('/login', login);
 
 
 
 
 var router = express.Router();
-router.get('/', function(req,res){
-  res.json({ message: 'lalalalala2;'});
-});
-
-router.route('/login')
-  .post(function(req, res) {
-    
-    var token = jwt.sign(req.body, 'secret', {
-      expiresIn:60*60*24
-    });
-    res.json({
-      success:true,
-      message: 'this is the tokken',
-      token:token
-    });
-  })
-  .get(function(req,res){
-    res.json({ message: 'lalalalala;'});
-    console.log(req);
-  });
 app.use('/', router);
 
 // catch 404 and forward to error handler
