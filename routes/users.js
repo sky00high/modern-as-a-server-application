@@ -7,6 +7,7 @@ AWS.config.region = 'us-east-1';
 var userTable = 'UserTable';
 var ddb = new AWS.DynamoDB();
 
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
@@ -24,7 +25,7 @@ router.get('/', function(req, res, next) {
 
 router.post('/', function(req, res, next){
 	if(!req.body.username) res.status(400).send({error:"no username provided"});
-	if(!req.body.username) res.status(400).send({error:"no password provided"});
+	if(!req.body.password) res.status(400).send({error:"no password provided"});
 
 
 	var item = {
