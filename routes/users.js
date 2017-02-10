@@ -4,7 +4,6 @@ var router = express.Router();
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1';
 //var userTable = process.env.userTable;
-var userTable = 'UserTable';
 var ddb = new AWS.DynamoDB();
 
 
@@ -12,7 +11,7 @@ var ddb = new AWS.DynamoDB();
 router.get('/', function(req, res, next) {
 
 	var params = {
-		TableName: userTable
+		TableName: "UserTable"
 	};
 
 
@@ -33,7 +32,7 @@ router.post('/', function(req, res, next){
 		'password' : {'S' : req.body.password}   
 	};
 	ddb.putItem({
-		'TableName' : userTable,
+		'TableName' : 'UserTable',
 		'Item' : item,
 		'Expected': { username: { Exists: false } }     
 	}, function(err, data){

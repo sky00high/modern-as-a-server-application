@@ -1,15 +1,20 @@
+var cookie = require('cookie');
 var express = require('express');
 var router = express.Router();
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1';
 //var userTable = process.env.userTable;
-var userTable = 'UserTable';
 var ddb = new AWS.DynamoDB();
 
 var jwt = require('jsonwebtoken');
 
 router.route('/')
+  .get(function(req, res) {
+    console.log("arrived login GET");
+    res.render('../views/login');
+  })
   .post(function(req, res) {
+    console.log("arrived login POST");
     if(!req.body.username) res.status(400).send({error:"no username provided"});
     if(!req.body.password) res.status(400).send({error:"no password provided"});
 
@@ -21,7 +26,7 @@ router.route('/')
           S : username
         }
       },
-      TableName: userTable
+      TableName: "UserTable"
     };
 
     ddb.getItem(params, function(err, data){
@@ -38,18 +43,24 @@ router.route('/')
         if(correctPassword == password){
           var token = jwt.sign(username, 'secret', {
           });
-          res.json({
-            success:true,
-            message: 'authentication successful this is the tokken',
-            token:token
-          });
+          // res.json({
+          //   success:true,
+          //   message: 'authentication successful this is the tokken',
+          //   token:token
+          // });
+
+          res.cookie('userToken', username); // here should be token
+          // diff between setHeader && res.cookie ??????????
+          // parent && children page relation ????
+          res.redirect('/index');
+          
+
         } else {
           res.status(401).send({error: "wrong password"});
         }
       }
     });
-
-
   });
+  
 
 module.exports = router;

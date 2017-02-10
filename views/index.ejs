@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+welcome to index page, <%= username %>
+</head>
+
+<body>
+
+<ul>
+<% for(var i=0; i<items.length; i++) {%>
+	<ul>
+	   <li><a href="/index/<%= items[i].UUID %>/"><%= items[i].name %></a></li>
+	</ul>
+<% } %>
+</ul>
+</body>
+
+</html>
