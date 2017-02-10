@@ -2,11 +2,12 @@
 <html>
 
 <head>
-Item page <br>
+<title>Stripe Item</title>
 
-<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
-<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
-<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="/css/3-col-portfolio.css">
+<script src="/js/jquery-1.11.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
   Stripe.setPublishableKey('pk_test_1Eu8j1uTDXwEBsOhQqF7ZEIt');
@@ -33,15 +34,10 @@ function stripeResponseHandler(status, response) {
   var $form = $('#payment-form');
 
   if (response.error) { // Problem!
-
-  	//console.log("localStorage 3 : " + localStorage.getItem("UUID"));
-
-    // Show the errors on the form:    
     $form.find('.payment-errors').text(response.error.message);
     $form.find('.submit').prop('disabled', false); // Re-enable submission
 
   } else { // Token was created!
-
     // Get the token ID:
     var token = response.id;
 
@@ -53,72 +49,97 @@ function stripeResponseHandler(status, response) {
     $form.get(0).submit();
   }
 };
-
 </script>
-
 </head>
 
 <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Stripe</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="/profile">Profile</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
 
-<ul>
-<li><p id="UUID"> <%= item.UUID %> </p></li>
-<li> <%= item.name %> </li>
-<li> <%= item.description %> </li>
-<li> <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal"> pay </button> </li>
-</ul>
+    <div class="row">
+          <div class="col-md-4 portfolio-item">
+                <p id="UUID"> <%= item.UUID %> </p>
+                <p> <%= item.name %> </p>
+                <p> <%= item.description %> </p>
+                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal"> pay </button> 
+          </div>
+    </div>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
 
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Make Payment</h4>
-      </div>
-      <div class="modal-body">
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
 
-				        <form action="/transaction/" method="POST" id="payment-form">
-				  <span class="payment-errors"></span>
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Make Payment</h4>
+          </div>
+          <div class="modal-body">
 
-				  <div class="form-row">
-				    <label>
-				      <span>Card Number</span>
-				      <input type="text" size="20" data-stripe="number" value="4242424242424242">
-				    </label>
-				  </div>
+    				        <form action="/transaction/" method="POST" id="payment-form">
+    				  <span class="payment-errors"></span>
 
-				  <div class="form-row">
-				    <label>
-				      <span>Expiration (MM/YY)</span>
-				      <input type="text" size="2" data-stripe="exp_month" value="08">
-				    </label>
-				    <span> / </span>
-				    <input type="text" size="2" data-stripe="exp_year" value="20">
-				  </div>
+    				  <div class="form-row">
+    				    <label>
+    				      <span>Card Number</span>
+    				      <input type="text" size="20" data-stripe="number" value="4242424242424242">
+    				    </label>
+    				  </div>
 
-				  <div class="form-row">
-				    <label>
-				      <span>CVC</span>
-				      <input type="text" size="4" data-stripe="cvc" value="213">
-				    </label>
-				  </div>
+    				  <div class="form-row">
+    				    <label>
+    				      <span>Expiration (MM/YY)</span>
+    				      <input type="text" size="2" data-stripe="exp_month" value="08">
+    				    </label>
+    				    <span> / </span>
+    				    <input type="text" size="2" data-stripe="exp_year" value="20">
+    				  </div>
 
-				  <input type="submit" class="btn btn-primary" value="Submit Payment">
-				</form>
+    				  <div class="form-row">
+    				    <label>
+    				      <span>CVC</span>
+    				      <input type="text" size="4" data-stripe="cvc" value="213">
+    				    </label>
+    				  </div>
 
-      </div>
+    				  <input type="submit" class="btn btn-primary" value="Submit Payment">
+    				</form>
 
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+          </div>
 
-<script type="text/javascript">
-	const _UUID = document.getElementById('UUID').innerHTML;
-	console.log("localStorage add _UUID : " + _UUID);
-	localStorage.setItem("_UUID", _UUID);
-</script>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script type="text/javascript">
+    	const _UUID = document.getElementById('UUID').innerHTML;
+    	console.log("localStorage add _UUID : " + _UUID);
+    	localStorage.setItem("_UUID", _UUID);
+    </script>
 </body>
 
 </html>
