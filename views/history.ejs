@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+welcome to history page, <%= username %>
+</head>
+
+<body>
+
+<ul>
+<% for(var i=0; i<payments.length; i++) {%>
+	<ul>
+	   <li><%= payments[i].username %> <%= payments[i].itemId %> <%= payments[i].price %> <%= payments[i].timestamp %></li>
+	</ul>
+<% } %>
+</ul>
+</body>
+
+</html>

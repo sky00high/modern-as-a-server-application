@@ -7,7 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var AWS = require("aws-sdk");
 var stripe = require("stripe")("sk_test_JCy56FAehenafOCX4DpsLILx");
-
+var jwt = require('jsonwebtoken');
 var app = express();
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -37,6 +37,9 @@ app.use('/', router);
 
 
 router.get('/index', function(req, res) {
+	console.log("====== date ======");
+	console.log(new Date().toString(36)); // the presicion is only to the second. Not that precise. May have issue when mulple users.
+
 	var cookies = cookie.parse(req.headers.cookie || '');
     AWS.config.update({
         region: "us-east-1",
@@ -47,9 +50,9 @@ router.get('/index', function(req, res) {
     };
     docClient.scan(params, function(err, data) {
         if (err) res.status(500).send({ error: 'user, get, dynamo' });
-        res.render(__dirname + '/views/index', { username : cookies.userToken, items: data.Items });
+        var username = jwt.verify(cookies.userToken, 'shhhhh')
+        res.render(__dirname + '/views/index', { username : username, items: data.Items });
     })
-    
 });
 
 router.get('/index/:itemId', function(req, res) {
@@ -74,7 +77,32 @@ router.get('/index/:itemId', function(req, res) {
     })
 });
 
+router.get('/history', function(req, res) {
+	var cookies = cookie.parse(req.headers.cookie || '');
+	var username = jwt.verify(cookies.userToken, 'shhhhh')
 
+    var docClient = new AWS.DynamoDB.DocumentClient();
+
+	var params = {
+	    TableName : "PaymentTable",
+	    IndexName : "username",
+	    KeyConditionExpression: "username = :yyyy", // ?
+	    ExpressionAttributeValues: {
+	        ":yyyy" : username
+	    }
+	};
+
+	docClient.query(params, function(err, data) {
+	    if (err) {
+	        console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
+	    } else {
+	        console.log("Query succeeded.");
+	        console.log(data.Items);
+	        res.render(__dirname + '/views/history', {username : username, payments : data.Items});
+	    }
+	});
+
+});
 
 
 router.post('/transaction/', urlencodedParser, function(req, res) {
@@ -96,8 +124,33 @@ router.post('/transaction/', urlencodedParser, function(req, res) {
         // YOUR CODE: Save the customer ID and other info in a database for later.
         console.log("here is the payment process");
         var cookies = cookie.parse(req.headers.cookie || '');
-        console.log("userName(Token)" + cookies.userToken);
+        var username = jwt.verify(cookies.userToken, 'shhhhh')
+        var date = new Date();
+        var UUID = (+date).toString(36);
+        console.log("UUID: " + UUID);
+        console.log("userName(Token)" + username);
         console.log("itemId: " + itemId);
+
+		var docClient = new AWS.DynamoDB.DocumentClient();
+
+		var params = {
+		    TableName: "PaymentTable",
+		    Item: {
+		        "UUID": UUID,
+		        "username" : username,
+		        "itemId" : itemId,
+		        "timestamp" : date.toString(),
+		        "price" : "$10.00"
+		    }
+		};
+
+		docClient.put(params, function(err, data) {
+		    if (err) {
+		        console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+		    } else {
+		        console.log("Added item:", JSON.stringify(data, null, 2));
+		    }
+		});
 
         return stripe.charges.create({ 
             amount: 100,
