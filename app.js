@@ -56,6 +56,12 @@ router.get('/index', function(req, res) {
 });
 
 router.get('/index/:itemId', function(req, res) {
+	var cookies = cookie.parse(req.headers.cookie || '');
+	if (!cookies.userToken) {
+		res.redirect('/login');
+	} 
+	
+	var username = jwt.verify(cookies.userToken, 'shhhhh');
     AWS.config.update({
         region: "us-east-1",
     });
@@ -79,7 +85,7 @@ router.get('/index/:itemId', function(req, res) {
 
 router.get('/history', function(req, res) {
 	var cookies = cookie.parse(req.headers.cookie || '');
-	var username = jwt.verify(cookies.userToken, 'shhhhh')
+	var username = jwt.verify(cookies.userToken, 'shhhhh');
 
     var docClient = new AWS.DynamoDB.DocumentClient();
 
