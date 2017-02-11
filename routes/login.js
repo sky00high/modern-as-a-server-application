@@ -1,12 +1,12 @@
 var cookie = require('cookie');
 var express = require('express');
-var router = express.Router();
+var jwt = require('jsonwebtoken');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1';
 
 var ddb = new AWS.DynamoDB();
 
-var jwt = require('jsonwebtoken');
+var router = express.Router();
 
 router.route('/')
   .get(function(req, res) {
@@ -42,12 +42,12 @@ router.route('/')
         var correctPassword = data.Item.password.S;
         if(correctPassword == password){
           var token = jwt.sign(username, 'shhhhh');  
-
           res.cookie('userToken', token); 
-          res.redirect('/index');
+          res.redirect('/');
           
         } else {
           res.status(401).send({error: "wrong password"});
+          res.render('../views/login');
         }
       }
     });

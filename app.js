@@ -33,12 +33,11 @@ app.use('/users', users);
 var login = require('./routes/login');
 app.use('/login', login);
 
-
 var router = express.Router();
 app.use('/', router);
 
-
-router.get('/index', function(req, res) {
+// index page
+router.get('/', function(req, res) {
 	console.log("====== date ======");
 	console.log(new Date().toString(36)); // the presicion is only to the second. Not that precise. May have issue when mulple users.
 
@@ -72,7 +71,6 @@ router.get('/index/:itemId', function(req, res) {
         region: "us-east-1",
     });
     var docClient = new AWS.DynamoDB.DocumentClient();
-
     var params = {
         TableName: "ItemTable",
         Key:{
@@ -94,7 +92,7 @@ router.get('/profile', function(req, res) {
 	var username = jwt.verify(cookies.userToken, 'shhhhh');
 
     var docClient = new AWS.DynamoDB.DocumentClient();
-
+    // remember to index the table
 	var params = {
 	    TableName : "PaymentTable",
 	    IndexName : "username",
@@ -107,6 +105,7 @@ router.get('/profile', function(req, res) {
 	docClient.query(params, function(err, data) {
 	    if (err) {
 	        console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
+            res.render(__dirname + '/views/error')
 	    } else {
 	        console.log("Query succeeded.");
 	        console.log(data.Items);
@@ -125,17 +124,15 @@ router.post('/transaction/', urlencodedParser, function(req, res) {
     stripe.customers.create({
         source: token,
     }).then(function(customer) { 
-        console.log("here is the payment process");
+        //console.log("here is the payment process");
         var cookies = cookie.parse(req.headers.cookie || '');
         var username = jwt.verify(cookies.userToken, 'shhhhh')
         var date = new Date();
         var UUID = (+date).toString(36);
-        console.log("UUID: " + UUID);
-        console.log("userName(Token)" + username);
-        console.log("itemId: " + itemId);
-
+        //console.log("UUID: " + UUID);
+        //console.log("userName(Token)" + username);
+        //console.log("itemId: " + itemId);
 		var docClient = new AWS.DynamoDB.DocumentClient();
-
 		var params = {
 		    TableName: "PaymentTable",
 		    Item: {
@@ -143,7 +140,7 @@ router.post('/transaction/', urlencodedParser, function(req, res) {
 		        "username" : username,
 		        "itemId" : itemId,
 		        "timestamp" : date.toString(),
-		        "price" : "$10.00"
+		        "price" : "$1.00"
 		    }
 		};
 
