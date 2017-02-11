@@ -3,7 +3,7 @@ var express = require('express');
 var router = express.Router();
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-east-1';
-//var userTable = process.env.userTable;
+
 var ddb = new AWS.DynamoDB();
 
 var jwt = require('jsonwebtoken');
@@ -41,20 +41,11 @@ router.route('/')
         if(!data.Item) res.status(404).send({error : "cannot find user"});
         var correctPassword = data.Item.password.S;
         if(correctPassword == password){
-          var token = jwt.sign(username, 'secret', {
-          });
-          // res.json({
-          //   success:true,
-          //   message: 'authentication successful this is the tokken',
-          //   token:token
-          // });
+          var token = jwt.sign(username, 'shhhhh');  
 
-          res.cookie('userToken', username); // here should be token
-          // diff between setHeader && res.cookie ??????????
-          // parent && children page relation ????
+          res.cookie('userToken', token); 
           res.redirect('/index');
           
-
         } else {
           res.status(401).send({error: "wrong password"});
         }

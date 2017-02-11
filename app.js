@@ -7,7 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var AWS = require("aws-sdk");
 var stripe = require("stripe")("sk_test_JCy56FAehenafOCX4DpsLILx");
-
+var jwt = require('jsonwebtoken');
 var app = express();
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -38,7 +38,14 @@ var router = express.Router();
 app.use('/', router);
 
 
-router.get('/', function(req, res) {
+router.get('/index', function(req, res) {
+	console.log("====== date ======");
+	console.log(new Date().toString(36)); // the presicion is only to the second. Not that precise. May have issue when mulple users.
+
+	var cookies = cookie.parse(req.headers.cookie || '');
+    if (!cookies.userToken) {
+        res.redirect('/login');
+    } 
     AWS.config.update({
         region: "us-east-1",
     });
@@ -48,13 +55,19 @@ router.get('/', function(req, res) {
     };
     docClient.scan(params, function(err, data) {
         if (err) res.status(500).send({ error: 'user, get, dynamo' });
-        res.render(__dirname + '/views/index', {items: data.Items });
+        var username = jwt.verify(cookies.userToken, 'shhhhh')
+        res.render(__dirname + '/views/index', { username : username, items: data.Items });
     })
-    
 });
 
 
 router.get('/index/:itemId', function(req, res) {
+	var cookies = cookie.parse(req.headers.cookie || '');
+	if (!cookies.userToken) {
+		res.redirect('/login');
+	} 
+	
+	var username = jwt.verify(cookies.userToken, 'shhhhh');
     AWS.config.update({
         region: "us-east-1",
     });
@@ -76,35 +89,78 @@ router.get('/index/:itemId', function(req, res) {
     })
 });
 
+router.get('/profile', function(req, res) {
+	var cookies = cookie.parse(req.headers.cookie || '');
+	var username = jwt.verify(cookies.userToken, 'shhhhh');
 
-router.post('/transaction', urlencodedParser, function(req, res) {
-    console.log("arrived transaction POST page. ");    
+    var docClient = new AWS.DynamoDB.DocumentClient();
 
-    console.log("-------- req.body -----------");
-    console.log(req.body);
-    console.log("-----------------------------");
+	var params = {
+	    TableName : "PaymentTable",
+	    IndexName : "username",
+	    KeyConditionExpression: "username = :yyyy",
+	    ExpressionAttributeValues: {
+	        ":yyyy" : username
+	    }
+	};
 
+	docClient.query(params, function(err, data) {
+	    if (err) {
+	        console.error("Unable to query. Error:", JSON.stringify(err, null, 2));
+	    } else {
+	        console.log("Query succeeded.");
+	        console.log(data.Items);
+	        res.render(__dirname + '/views/profile', {username : username, payments : data.Items});
+	    }
+	});
+
+});
+
+
+router.post('/transaction/', urlencodedParser, function(req, res) {
     var itemId = req.body.itemId;
-    var token = req.body.stripeToken; // Using Express
-    //var email = req.body.stripeEmail;
+    var token = req.body.stripeToken;
 
     // Create a Customer:
     stripe.customers.create({
-        //email: email,
         source: token,
-    }).then(function(customer) { // 那么then()的意义何在？前后代码段落直接顺接下来有问题吗？？
-        // YOUR CODE: Save the customer ID and other info in a database for later.
+    }).then(function(customer) { 
         console.log("here is the payment process");
         var cookies = cookie.parse(req.headers.cookie || '');
-        console.log("userName(Token)" + cookies.userToken);
+        var username = jwt.verify(cookies.userToken, 'shhhhh')
+        var date = new Date();
+        var UUID = (+date).toString(36);
+        console.log("UUID: " + UUID);
+        console.log("userName(Token)" + username);
         console.log("itemId: " + itemId);
+
+		var docClient = new AWS.DynamoDB.DocumentClient();
+
+		var params = {
+		    TableName: "PaymentTable",
+		    Item: {
+		        "UUID": UUID,
+		        "username" : username,
+		        "itemId" : itemId,
+		        "timestamp" : date.toString(),
+		        "price" : "$10.00"
+		    }
+		};
+
+		docClient.put(params, function(err, data) {
+		    if (err) {
+		        console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+		    } else {
+		        console.log("Added item:", JSON.stringify(data, null, 2));
+		    }
+		});
 
         return stripe.charges.create({ 
             amount: 100,
             currency: "usd",
-            customer: customer.id, // 这个ID是什么，打印出来看看？
+            customer: customer.id,
         });
-    }).then(function(charge) { // why ？
+    }).then(function(charge) {
         return "is this?";
     }).then(function(string) {
         console.log(string);
@@ -112,22 +168,6 @@ router.post('/transaction', urlencodedParser, function(req, res) {
 
     res.render(__dirname + '/views/transaction');
 });
-
-
-router.get('/profile', function(req, res) {
-    AWS.config.update({
-        region: "us-east-1",
-    });
-    var docClient = new AWS.DynamoDB.DocumentClient();
-    var params = {
-        TableName: "PaymentTable"
-    };
-    docClient.scan(params, function(err, data) {
-        if (err) res.status(500).send({ error: 'user, get, dynamo' });
-        res.render(__dirname + '/views/profile');
-    })
-});
-
 
 
 // catch 404 and forward to error handler
