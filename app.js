@@ -156,6 +156,7 @@ router.post('/transaction/', urlencodedParser, function(req, res) {
             amount: 100,
             currency: "usd",
             customer: customer.id,
+            metadata: {'order_id': UUID}
         });
     }).then(function(charge) {
         return "is this?";
